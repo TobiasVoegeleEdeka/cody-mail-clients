@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.nio.charset.StandardCharsets;
 
 @RestController
-public class MailTestController {
+public class MailGrpcController {
 
     @GrpcClient("mailServer")
     private MailGatewayServiceGrpc.MailGatewayServiceBlockingStub mailStub;
