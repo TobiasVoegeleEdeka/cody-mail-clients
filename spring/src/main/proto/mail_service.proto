@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+option java_package = "de.edeka.codymail.gateway.grpc"; 
+option java_outer_classname = "MailServiceProto";
+
+package codymail;
+
+// Der Service-Vertrag
+service MailGatewayService {
+    // Sendet eine E-Mail
+    rpc SendMail (GrpcMailRequest) returns (GrpcMailResponse);
+}
+
+// --- Nachrichten Definitionen ---
+
+message GrpcMailRequest {
+    string appTag = 1;
+    repeated string recipients = 2;
+    repeated string ccRecipients = 3;
+    repeated string bccRecipients = 4;
+    string subject = 5;
+    string bodyContent = 6;
+    string htmlBodyContent = 7;
+    repeated GrpcAttachment attachments = 8;
+
+}
+
+message GrpcAttachment {
+    string name = 1;
+    string mimeType = 2;
+    bytes content = 3; // Binärdaten als Bytes
+}
+
+message GrpcMailResponse {
+    enum Status {
+        UNKNOWN = 0;
+        SUCCESS = 1;
+        FAILURE = 2;
+    }
+    Status status = 1;
+    string errorMessage = 2;
+}
+
+message LoadTestRequest {
+    int32 count = 1;
+}
+
+message LoadTestResponse {
+    string resultMessage = 1;
+}
+
+message StringResponse {
+    string message = 1;
+}

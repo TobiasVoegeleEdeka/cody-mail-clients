@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+// Sorgt dafür, dass jede Message (Request/Response) eine eigene Java-Datei bekommt
+option java_multiple_files = true;
+
+// WICHTIG: Das muss exakt mit deinem Java-Import übereinstimmen
+option java_package = "de.edeka.codymail.gateway.grpc";
+option java_outer_classname = "MailServiceProto";
+
+package codymail;
+
+// --- SERVICE DEFINITION ---
+service MailGatewayService {
+    // Der RPC Aufruf
+    rpc SendMail (GrpcMailRequest) returns (GrpcMailResponse);
+}
+
+// --- MESSAGES ---
+
+// 1. Definition für Anhänge
+message GrpcAttachment {
+    string fileName = 1;      // z.B. "rechnung.pdf"
+    string mimeType = 2;      // z.B. "application/pdf"
+    bytes data = 3;           // Der Inhalt als Byte-Array
+}
+
+// 2. Der Request
+message GrpcMailRequest {
+    string appTag = 1;
+    repeated string recipients = 2;
+    repeated string ccRecipients = 3;
+    repeated string bccRecipients = 4;
+    string subject = 5;
+    string bodyContent = 6;
+    string htmlBodyContent = 7;
+    
+    // Hier ist die Liste der Anhänge
+    repeated GrpcAttachment attachments = 8;
+
+    map<string, string> traceContext = 9;
+}
+
+// 3. Die Response
+message GrpcMailResponse {
+    enum Status {
+        UNKNOWN = 0;
+        SUCCESS = 1;
+        FAILURE = 2;
+    }
+    Status status = 1;
+    string errorMessage = 2;
+}
