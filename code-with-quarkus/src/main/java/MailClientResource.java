@@ -1,4 +1,4 @@
-package de.edeka.client;
+
 
 import com.google.protobuf.ByteString;
 import de.edeka.codymail.gateway.grpc.GrpcAttachment;
@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 @Path("/client-test")
 public class MailClientResource {
 
-    // "mailServer" ist der Name, den wir gleich in der Config nutzen
+
     @GrpcClient("mailServer")
     MailGatewayServiceGrpc.MailGatewayServiceBlockingStub mailStub;
 
