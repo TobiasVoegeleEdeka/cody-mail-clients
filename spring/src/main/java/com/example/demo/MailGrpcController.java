@@ -74,7 +74,7 @@ public class MailGrpcController {
 
 //         // 2. Request bauen
 //         GrpcMailRequest request = GrpcMailRequest.newBuilder()
-//                 .setAppTag("BATCH_JOB_APP")
+//                 .setAppTag("alv")
 //                 .setSubject(subject)
 //                 .setBodyContent(body)
 //                 .addRecipients(recipient)
