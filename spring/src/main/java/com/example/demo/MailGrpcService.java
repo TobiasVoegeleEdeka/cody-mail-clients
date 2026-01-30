@@ -106,44 +106,83 @@ public class MailGrpcService {
     }
 }
 
-// Beispiel Code Direkt Aufruf 
-// package com.example.demo.service;
 
-// import com.google.protobuf.ByteString;
-// import de.edeka.codymail.gateway.grpc.*;
-// import net.devh.boot.grpc.client.inject.GrpcClient;
-// import org.springframework.stereotype.Service;
-
+/**
+ * <strong>MailGrpcAsyncService</strong><br>
+ * Zeigt, wie man gRPC <strong>asynchron (non-blocking)</strong> nutzt.
+ */
 // @Service
-// public class MailGrpcService {
+// public class MailGrpcAsyncService {
 
+//     /**
+//      * <strong>Der Async Stub</strong>
+//      * <p>
+//      * Achte auf den Namen: Hier fehlt das Wort "Blocking".
+//      * <br>
+//      * <code>MailGatewayServiceStub</code> = Asynchron (Non-Blocking).
+//      * <br>
+//      * <code>MailGatewayServiceBlockingStub</code> = Synchron (Blocking).
+//      * </p>
+//      */
 //     @GrpcClient("mailServer")
-//     private MailGatewayServiceGrpc.MailGatewayServiceBlockingStub mailStub;
+//     private MailGatewayServiceGrpc.MailGatewayServiceStub asyncStub;
 
-//     public void sendMailWithPdf(String recipient, String subject, String body, String filename, byte[] pdfData) {
-        
-//         // 1. Attachment bauen
+//     /**
+//      * Sendet eine Mail, OHNE auf die Antwort zu warten ("Fire and Forget").
+//      * <p>
+//      * Diese Methode kehrt sofort zurück (in Millisekunden), noch bevor die Mail
+//      * den Server erreicht hat. Das Ergebnis wird später im StreamObserver verarbeitet.
+//      * </p>
+//      */
+//     public void sendMailAsync(String recipient, String subject, String body, String filename, byte[] pdfData) {
+
+//         // 1. Daten bauen (wie gehabt)
 //         GrpcAttachment attachment = GrpcAttachment.newBuilder()
 //                 .setName(filename)
-//                 .setMimeType("application/pdf") // Wichtig: korrekter Mime-Type für PDFs
+//                 .setMimeType("application/pdf")
 //                 .setContent(ByteString.copyFrom(pdfData))
 //                 .build();
 
-//         // 2. Request bauen
 //         GrpcMailRequest request = GrpcMailRequest.newBuilder()
-//                 .setAppTag("alv")
+//                 .setAppTag("alv-async")
 //                 .setSubject(subject)
 //                 .setBodyContent(body)
 //                 .addRecipients(recipient)
 //                 .addAttachments(attachment)
 //                 .build();
 
-//         // 3. Senden
-//         try {
-//             GrpcMailResponse response = mailStub.sendMail(request);
-//             System.out.println("Mail gesendet an " + recipient + ". Status: " + response.getStatus());
-//         } catch (Exception e) {
-//             System.err.println("Fehler beim Senden an " + recipient + ": " + e.getMessage());
-//         }
+//         // 2. Den "Beobachter" (Callback) definieren
+//         // Das ist das Objekt, das angerufen wird, wenn der Server antwortet.
+//         StreamObserver<GrpcMailResponse> responseObserver = new StreamObserver<>() {
+
+//             @Override
+//             public void onNext(GrpcMailResponse response) {
+//                 // WIRD AUFGERUFEN: Wenn der Server erfolgreich antwortet.
+//                 // Dies passiert in einem anderen Thread!
+//                 System.out.println("Async Antwort erhalten für " + recipient + ": " + response.getStatus());
+//             }
+
+//             @Override
+//             public void onError(Throwable t) {
+//                 // WIRD AUFGERUFEN: Wenn ein Fehler auftritt (Netzwerk weg, Server-Fehler).
+//                 System.err.println("Async Fehler bei " + recipient + ": " + t.getMessage());
+//             }
+
+//             @Override
+//             public void onCompleted() {
+//                 // WIRD AUFGERUFEN: Wenn der Server sagt "Ich bin fertig mit Senden".
+//                 // Bei einfachen Aufrufen passiert das meist direkt nach onNext.
+//                 System.out.println("Kommunikation für " + recipient + " beendet.");
+//             }
+//         };
+
+//         // 3. Asynchron senden
+//         System.out.println("Schicke Request ab... (warte nicht auf Antwort)");
+        
+//         // Wir übergeben den Request UND den Observer.
+//         // Die Methode kommt SOFORT zurück, der Code läuft weiter.
+//         asyncStub.sendMail(request, responseObserver);
+        
+//         System.out.println("Request ist raus. Methode sendMailAsync ist fertig.");
 //     }
 // }
